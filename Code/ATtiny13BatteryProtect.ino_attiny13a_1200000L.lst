@@ -1,0 +1,491 @@
+
+C:\Users\user\AppData\Local\Temp\arduino_build_901103/ATtiny13BatteryProtect.ino.elf:     file format elf32-avr
+
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+__vectors():
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	69 c0       	rjmp	.+210    	; 0xd6 <__bad_interrupt>
+   4:	68 c0       	rjmp	.+208    	; 0xd6 <__bad_interrupt>
+   6:	67 c0       	rjmp	.+206    	; 0xd6 <__bad_interrupt>
+   8:	66 c0       	rjmp	.+204    	; 0xd6 <__bad_interrupt>
+   a:	65 c0       	rjmp	.+202    	; 0xd6 <__bad_interrupt>
+   c:	64 c0       	rjmp	.+200    	; 0xd6 <__bad_interrupt>
+   e:	63 c0       	rjmp	.+198    	; 0xd6 <__bad_interrupt>
+  10:	62 c0       	rjmp	.+196    	; 0xd6 <__bad_interrupt>
+  12:	61 c0       	rjmp	.+194    	; 0xd6 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+__trampolines_start():
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+  1c:	01 d0       	rcall	.+2      	; 0x20 <main>
+  1e:	b2 c0       	rjmp	.+356    	; 0x184 <_exit>
+
+00000020 <main>:
+main():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:22
+#include <avr/power.h>
+//#include <avr/delay.h>
+
+int main( void )
+{
+  wdt_reset(); // надо же, сколько над этим бился
+  20:	a8 95       	wdr
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:24
+  // просто ватчдог после перезагрузки включен
+  DDRB = 0b10111;  // порти PB0-PB2 и PB4 встановленні на вихід, PB3 на вхід.
+  22:	87 e1       	ldi	r24, 0x17	; 23
+  24:	87 bb       	out	0x17, r24	; 23
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:25
+  PORTB |= (1 << 2); // подмигнём, типа спим но питание есть
+  26:	c2 9a       	sbi	0x18, 2	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:32
+  /*for(byte led_test = 1; led_test >= 0; led_test--){    // проведемо діагностику
+    PORTB = 1<<led_test;
+    delay(300); //_delay_ms(300);
+    }*/
+
+  unsigned int adc_in_main = analogReadOversampled();
+  28:	71 d0       	rcall	.+226    	; 0x10c <analogReadOversampled()>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:33
+  if (adc_in_main <= 410 || adc_in_main >= 472) { // для обеспечения гистерезиса после отключения
+  2a:	8b 59       	subi	r24, 0x9B	; 155
+  2c:	91 40       	sbci	r25, 0x01	; 1
+  2e:	cd 97       	sbiw	r24, 0x3d	; 61
+  30:	08 f0       	brcs	.+2      	; 0x34 <main+0x14>
+  32:	37 c0       	rjmp	.+110    	; 0xa2 <__stack+0x3>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:39
+    // при > 12.0 В или < 13.5 В просыпаемся
+    system_sleep();
+  }
+
+  for (byte led_test = 0; led_test < 2; led_test++) {  // проведемо діагностику
+    PORTB = 1 << led_test;
+  34:	81 e0       	ldi	r24, 0x01	; 1
+  36:	88 bb       	out	0x18, r24	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:40
+    delay(300);
+  38:	8c e2       	ldi	r24, 0x2C	; 44
+  3a:	91 e0       	ldi	r25, 0x01	; 1
+  3c:	88 d0       	rcall	.+272    	; 0x14e <delay>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:39
+    // при > 12.0 В или < 13.5 В просыпаемся
+    system_sleep();
+  }
+
+  for (byte led_test = 0; led_test < 2; led_test++) {  // проведемо діагностику
+    PORTB = 1 << led_test;
+  3e:	82 e0       	ldi	r24, 0x02	; 2
+  40:	88 bb       	out	0x18, r24	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:40
+    delay(300);
+  42:	8c e2       	ldi	r24, 0x2C	; 44
+  44:	91 e0       	ldi	r25, 0x01	; 1
+  46:	83 d0       	rcall	.+262    	; 0x14e <delay>
+wdt_enable():
+c:\users\user\appdata\local\arduino15\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino7\avr\include\avr/wdt.h:469
+				: "I" (_SFR_IO_ADDR(_WD_CONTROL_REG)),
+				"r" ((uint8_t)(_BV(_WD_CHANGE_BIT) | _BV(WDE))),
+				"r" ((uint8_t) ((value & 0x08 ? _WD_PS3_MASK : 0x00) |
+						_BV(WDE) | (value & 0x07)) )
+				: "r0"
+		);
+  48:	c8 e1       	ldi	r28, 0x18	; 24
+  4a:	df e0       	ldi	r29, 0x0F	; 15
+main():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:55
+    unsigned int adc = analogReadOversampled();
+
+    if (adc >= 358 && adc <= 512) {
+      PORTB |= (1 << 4); // напряжение > 10.5 В < 15 В поехали!
+      if (adc >= 445 ) { // > 13 В мигаем всема светодиодами
+        delay((((542 - adc) / 4) * 50));
+  4c:	0e e1       	ldi	r16, 0x1E	; 30
+  4e:	12 e0       	ldi	r17, 0x02	; 2
+wdt_enable():
+c:\users\user\appdata\local\arduino15\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino7\avr\include\avr/wdt.h:469
+  50:	0f b6       	in	r0, 0x3f	; 63
+  52:	f8 94       	cli
+  54:	a8 95       	wdr
+  56:	c1 bd       	out	0x21, r28	; 33
+  58:	0f be       	out	0x3f, r0	; 63
+  5a:	d1 bd       	out	0x21, r29	; 33
+main():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:46
+  }
+
+  while (1) {
+    wdt_enable(WDTO_2S); // защита от случайных зависаний
+    // если не сбросить через 2 сек будет ресет
+    PORTB &= ~(1 << 0);
+  5c:	c0 98       	cbi	0x18, 0	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:47
+    PORTB &= ~(1 << 1); // тушым светодиоди 100% 65% 35%
+  5e:	c1 98       	cbi	0x18, 1	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:48
+    PORTB &= ~(1 << 2);
+  60:	c2 98       	cbi	0x18, 2	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:50
+
+    unsigned int adc = analogReadOversampled();
+  62:	54 d0       	rcall	.+168    	; 0x10c <analogReadOversampled()>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:52
+
+    if (adc >= 358 && adc <= 512) {
+  64:	9c 01       	movw	r18, r24
+  66:	26 56       	subi	r18, 0x66	; 102
+  68:	31 40       	sbci	r19, 0x01	; 1
+  6a:	2b 39       	cpi	r18, 0x9B	; 155
+  6c:	31 05       	cpc	r19, r1
+  6e:	c8 f4       	brcc	.+50     	; 0xa2 <__stack+0x3>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:53
+      PORTB |= (1 << 4); // напряжение > 10.5 В < 15 В поехали!
+  70:	c4 9a       	sbi	0x18, 4	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:54
+      if (adc >= 445 ) { // > 13 В мигаем всема светодиодами
+  72:	8d 3b       	cpi	r24, 0xBD	; 189
+  74:	21 e0       	ldi	r18, 0x01	; 1
+  76:	92 07       	cpc	r25, r18
+  78:	a8 f0       	brcs	.+42     	; 0xa4 <__stack+0x5>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:55
+        delay((((542 - adc) / 4) * 50));
+  7a:	98 01       	movw	r18, r16
+  7c:	28 1b       	sub	r18, r24
+  7e:	39 0b       	sbc	r19, r25
+  80:	c9 01       	movw	r24, r18
+  82:	96 95       	lsr	r25
+  84:	87 95       	ror	r24
+  86:	96 95       	lsr	r25
+  88:	87 95       	ror	r24
+  8a:	62 e3       	ldi	r22, 0x32	; 50
+  8c:	70 e0       	ldi	r23, 0x00	; 0
+  8e:	69 d0       	rcall	.+210    	; 0x162 <__mulhi3>
+  90:	5e d0       	rcall	.+188    	; 0x14e <delay>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:58
+      } // интенсивность мигания зависит от напряжения
+      if (adc >= 428 ) {
+        PORTB |= (1 << 0);
+  92:	c0 9a       	sbi	0x18, 0	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:61
+      }  // 1-й светодиод 100% заряда > 12.5 В.
+      if (adc >= 401 ) {
+        PORTB |= (1 << 1);
+  94:	c1 9a       	sbi	0x18, 1	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:64
+      }  // 2-й светодиод 65% заряда > 11.7 В.
+      if (adc >= 378 ) {
+        PORTB |= (1 << 2);
+  96:	c2 9a       	sbi	0x18, 2	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:71
+      if (adc <= 377 ) {
+        PORTB |= (1 << 2);  // < 11.1 В. мигаем светодиодом 30%
+        delay((((adc - 350) / 4) * 50)); // интенсивность мигания зависит от напряжения
+        PORTB &= ~(1 << 2);
+      }
+      wdt_reset(); // сбросим защиту от зависаний
+  98:	a8 95       	wdr
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:72
+      delay(300);  // ждём как минимум 0.3 сек
+  9a:	8c e2       	ldi	r24, 0x2C	; 44
+  9c:	91 e0       	ldi	r25, 0x01	; 1
+  9e:	57 d0       	rcall	.+174    	; 0x14e <delay>
+  a0:	d7 cf       	rjmp	.-82     	; 0x50 <__SREG__+0x11>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:35
+    }*/
+
+  unsigned int adc_in_main = analogReadOversampled();
+  if (adc_in_main <= 410 || adc_in_main >= 472) { // для обеспечения гистерезиса после отключения
+    // при > 12.0 В или < 13.5 В просыпаемся
+    system_sleep();
+  a2:	1a d0       	rcall	.+52     	; 0xd8 <system_sleep()>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:57
+    if (adc >= 358 && adc <= 512) {
+      PORTB |= (1 << 4); // напряжение > 10.5 В < 15 В поехали!
+      if (adc >= 445 ) { // > 13 В мигаем всема светодиодами
+        delay((((542 - adc) / 4) * 50));
+      } // интенсивность мигания зависит от напряжения
+      if (adc >= 428 ) {
+  a4:	8c 3a       	cpi	r24, 0xAC	; 172
+  a6:	31 e0       	ldi	r19, 0x01	; 1
+  a8:	93 07       	cpc	r25, r19
+  aa:	98 f7       	brcc	.-26     	; 0x92 <__SREG__+0x53>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:60
+        PORTB |= (1 << 0);
+      }  // 1-й светодиод 100% заряда > 12.5 В.
+      if (adc >= 401 ) {
+  ac:	81 39       	cpi	r24, 0x91	; 145
+  ae:	21 e0       	ldi	r18, 0x01	; 1
+  b0:	92 07       	cpc	r25, r18
+  b2:	80 f7       	brcc	.-32     	; 0x94 <__SREG__+0x55>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:63
+        PORTB |= (1 << 1);
+      }  // 2-й светодиод 65% заряда > 11.7 В.
+      if (adc >= 378 ) {
+  b4:	8a 37       	cpi	r24, 0x7A	; 122
+  b6:	31 e0       	ldi	r19, 0x01	; 1
+  b8:	93 07       	cpc	r25, r19
+  ba:	68 f7       	brcc	.-38     	; 0x96 <__SREG__+0x57>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:67
+        PORTB |= (1 << 2);
+      }  // 3-й светодиод 35% заряда > 11.1 В.
+      if (adc <= 377 ) {
+        PORTB |= (1 << 2);  // < 11.1 В. мигаем светодиодом 30%
+  bc:	c2 9a       	sbi	0x18, 2	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:68
+        delay((((adc - 350) / 4) * 50)); // интенсивность мигания зависит от напряжения
+  be:	8e 55       	subi	r24, 0x5E	; 94
+  c0:	91 40       	sbci	r25, 0x01	; 1
+  c2:	96 95       	lsr	r25
+  c4:	87 95       	ror	r24
+  c6:	96 95       	lsr	r25
+  c8:	87 95       	ror	r24
+  ca:	62 e3       	ldi	r22, 0x32	; 50
+  cc:	70 e0       	ldi	r23, 0x00	; 0
+  ce:	49 d0       	rcall	.+146    	; 0x162 <__mulhi3>
+  d0:	3e d0       	rcall	.+124    	; 0x14e <delay>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:69
+        PORTB &= ~(1 << 2);
+  d2:	c2 98       	cbi	0x18, 2	; 24
+  d4:	e1 cf       	rjmp	.-62     	; 0x98 <__SREG__+0x59>
+
+000000d6 <__bad_interrupt>:
+__vector_1():
+  d6:	94 cf       	rjmp	.-216    	; 0x0 <__vectors>
+
+000000d8 <system_sleep()>:
+_Z12system_sleepv():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:101
+  for (int i = 0; i < 32; i++)
+    aSum += ADC_READ(); // read and sum 16 ADС probes
+  return aSum >> 5;   // ..
+}
+void system_sleep() {
+  wdt_reset(); // сбрасываем ватчдог measure current
+  d8:	a8 95       	wdr
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:102
+  PORTB = 0x00; // потушым все диоди и откл. реле
+  da:	18 ba       	out	0x18, r1	; 24
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:103
+  ADCSRA &= ~(1 << ADEN);  // вимикаємо АЦП
+  dc:	37 98       	cbi	0x06, 7	; 6
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:105
+
+  MCUSR &= ~(1 << WDRF);
+  de:	84 b7       	in	r24, 0x34	; 52
+  e0:	87 7f       	andi	r24, 0xF7	; 247
+  e2:	84 bf       	out	0x34, r24	; 52
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:107
+  /* Start the WDT Config change sequence. */
+  WDTCR |= (1 << WDCE) | (1 << WDE);
+  e4:	81 b5       	in	r24, 0x21	; 33
+  e6:	88 61       	ori	r24, 0x18	; 24
+  e8:	81 bd       	out	0x21, r24	; 33
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:109
+  /* Configure the prescaler and the WDT for interrupt mode only*/
+  WDTCR = (1 << WDP0) | (1 << WDP3) | (1 << WDTIE); // 8sec
+  ea:	81 e6       	ldi	r24, 0x61	; 97
+  ec:	81 bd       	out	0x21, r24	; 33
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:112
+  //WDTCR = (1<<WDP2) | (1<<WDP1) | (1<<WDTIE); // 4sec
+  //WDTCR = (1<<WDP2) | (1<<WDP0) | (1<<WDTIE); // 0.5sec
+  WDTCR |= (1 << WDTIE);
+  ee:	81 b5       	in	r24, 0x21	; 33
+  f0:	80 64       	ori	r24, 0x40	; 64
+  f2:	81 bd       	out	0x21, r24	; 33
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:114
+
+  sei(); // Enable global interrupts
+  f4:	78 94       	sei
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:116
+
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // если спать - то на полную
+  f6:	85 b7       	in	r24, 0x35	; 53
+  f8:	87 7e       	andi	r24, 0xE7	; 231
+  fa:	80 61       	ori	r24, 0x10	; 16
+  fc:	85 bf       	out	0x35, r24	; 53
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:118
+  while (1) {
+    sleep_enable(); // разрешаем сон
+  fe:	85 b7       	in	r24, 0x35	; 53
+ 100:	80 62       	ori	r24, 0x20	; 32
+ 102:	85 bf       	out	0x35, r24	; 53
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:119
+    sleep_cpu(); // спать!
+ 104:	88 95       	sleep
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:120
+    sleep_disable();
+ 106:	85 b7       	in	r24, 0x35	; 53
+ 108:	8f 7d       	andi	r24, 0xDF	; 223
+ 10a:	f8 cf       	rjmp	.-16     	; 0xfc <system_sleep()+0x24>
+
+0000010c <analogReadOversampled()>:
+_Z21analogReadOversampledv():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:94
+  byte high = ADCH;
+  ADCSRA &= ~(1 << ADEN);  // отключаем АЦП
+  return (high << 8) | low;
+}
+
+unsigned int analogReadOversampled() {
+ 10c:	20 e2       	ldi	r18, 0x20	; 32
+ 10e:	30 e0       	ldi	r19, 0x00	; 0
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:95
+  unsigned long aSum = 0;   // the sum of all analog readings
+ 110:	80 e0       	ldi	r24, 0x00	; 0
+ 112:	90 e0       	ldi	r25, 0x00	; 0
+ 114:	dc 01       	movw	r26, r24
+ADC_READ():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:83
+  }
+  return 0;
+}
+
+unsigned int ADC_READ() {
+  ADMUX = 3; // ADC pin
+ 116:	63 e0       	ldi	r22, 0x03	; 3
+ 118:	67 b9       	out	0x07, r22	; 7
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:84
+  ADCSRA |= 1 << ADEN;
+ 11a:	37 9a       	sbi	0x06, 7	; 6
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:85
+  ADCSRA |= 1 << ADSC;
+ 11c:	36 9a       	sbi	0x06, 6	; 6
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:86
+  while (!(ADCSRA & (1 << ADIF)));
+ 11e:	34 9b       	sbis	0x06, 4	; 6
+ 120:	fe cf       	rjmp	.-4      	; 0x11e <analogReadOversampled()+0x12>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:87
+  ADCSRA |= 1 << ADIF;
+ 122:	34 9a       	sbi	0x06, 4	; 6
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:88
+  byte low  = ADCL;
+ 124:	54 b1       	in	r21, 0x04	; 4
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:89
+  byte high = ADCH;
+ 126:	45 b1       	in	r20, 0x05	; 5
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:90
+  ADCSRA &= ~(1 << ADEN);  // отключаем АЦП
+ 128:	37 98       	cbi	0x06, 7	; 6
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:91
+  return (high << 8) | low;
+ 12a:	45 27       	eor	r20, r21
+ 12c:	54 27       	eor	r21, r20
+ 12e:	45 27       	eor	r20, r21
+_Z21analogReadOversampledv():
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:97
+}
+
+unsigned int analogReadOversampled() {
+  unsigned long aSum = 0;   // the sum of all analog readings
+  for (int i = 0; i < 32; i++)
+    aSum += ADC_READ(); // read and sum 16 ADС probes
+ 130:	84 0f       	add	r24, r20
+ 132:	95 1f       	adc	r25, r21
+ 134:	a1 1d       	adc	r26, r1
+ 136:	b1 1d       	adc	r27, r1
+ 138:	21 50       	subi	r18, 0x01	; 1
+ 13a:	31 09       	sbc	r19, r1
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:96
+  return (high << 8) | low;
+}
+
+unsigned int analogReadOversampled() {
+  unsigned long aSum = 0;   // the sum of all analog readings
+  for (int i = 0; i < 32; i++)
+ 13c:	69 f7       	brne	.-38     	; 0x118 <analogReadOversampled()+0xc>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:98
+    aSum += ADC_READ(); // read and sum 16 ADС probes
+  return aSum >> 5;   // ..
+ 13e:	25 e0       	ldi	r18, 0x05	; 5
+ 140:	b6 95       	lsr	r27
+ 142:	a7 95       	ror	r26
+ 144:	97 95       	ror	r25
+ 146:	87 95       	ror	r24
+ 148:	2a 95       	dec	r18
+ 14a:	d1 f7       	brne	.-12     	; 0x140 <analogReadOversampled()+0x34>
+C:\Users\user\Desktop\ATtiny13BatteryProtect\Imgs\ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino:99
+}
+ 14c:	08 95       	ret
+
+0000014e <delay>:
+delay():
+C:\Users\user\AppData\Local\Arduino15\packages\MicroCore\hardware\avr\2.2.0\cores\microcore/wiring.c:138
+ *
+ * @param ms The number of milliseconds to pause
+ */
+void delay(uint16_t ms)
+{
+  while(ms--)
+ 14e:	01 97       	sbiw	r24, 0x01	; 1
+ 150:	08 f4       	brcc	.+2      	; 0x154 <delay+0x6>
+C:\Users\user\AppData\Local\Arduino15\packages\MicroCore\hardware\avr\2.2.0\cores\microcore/wiring.c:140
+    _delay_ms(1);
+}
+ 152:	08 95       	ret
+_delay_ms():
+c:\users\user\appdata\local\arduino15\packages\arduino\tools\avr-gcc\7.3.0-atmel3.6.1-arduino7\avr\include\util/delay.h:187
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 154:	eb e2       	ldi	r30, 0x2B	; 43
+ 156:	f1 e0       	ldi	r31, 0x01	; 1
+ 158:	31 97       	sbiw	r30, 0x01	; 1
+ 15a:	f1 f7       	brne	.-4      	; 0x158 <delay+0xa>
+ 15c:	00 c0       	rjmp	.+0      	; 0x15e <delay+0x10>
+ 15e:	00 00       	nop
+ 160:	f6 cf       	rjmp	.-20     	; 0x14e <delay>
+
+00000162 <__mulhi3>:
+__mulhi3():
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:312
+ 162:	00 24       	eor	r0, r0
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:313
+ 164:	55 27       	eor	r21, r21
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:314
+ 166:	04 c0       	rjmp	.+8      	; 0x170 <__mulhi3+0xe>
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:317
+ 168:	08 0e       	add	r0, r24
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:318
+ 16a:	59 1f       	adc	r21, r25
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:320
+ 16c:	88 0f       	add	r24, r24
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:321
+ 16e:	99 1f       	adc	r25, r25
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:324
+ 170:	00 97       	sbiw	r24, 0x00	; 0
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:325
+ 172:	29 f0       	breq	.+10     	; 0x17e <__mulhi3+0x1c>
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:328
+ 174:	76 95       	lsr	r23
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:329
+ 176:	67 95       	ror	r22
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:331
+ 178:	b8 f3       	brcs	.-18     	; 0x168 <__mulhi3+0x6>
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:335
+ 17a:	71 05       	cpc	r23, r1
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:337
+ 17c:	b9 f7       	brne	.-18     	; 0x16c <__mulhi3+0xa>
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:340
+ 17e:	80 2d       	mov	r24, r0
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:341
+ 180:	95 2f       	mov	r25, r21
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:342
+ 182:	08 95       	ret
+
+00000184 <_exit>:
+exit():
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:2278
+ 184:	f8 94       	cli
+
+00000186 <__stop_program>:
+__stop_program():
+/home/jenkins-mingw32/workspace/avr-gcc-staging/label/Ubuntu14.04x64-mingw32/gcc-build/avr/avr25/tiny-stack/libgcc/../../../../../gcc/libgcc/config/avr/lib1funcs.S:2280
+ 186:	ff cf       	rjmp	.-2      	; 0x186 <__stop_program>
