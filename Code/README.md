@@ -1,10 +1,10 @@
-  PB3 вольтметр, делитель напряжения, 50 кОм и 10 кОм + 1 кОм подстроечный(по плюсу)
-  PB4 реле
-  PB0 1-й светодиод 100% заряда - 12.5 В.
-  PB1 2-й светодиод 65% заряда - 11.7 В.
-  PB2 3-й светодиод 35% заряда - 11.1 В.
+  PB3 voltmeter, 50 kOhm and 10 kOhm + 1 kOhm variable resistor
+  PB4 Relay
+  PB0 1 LED 100% Charge level - >12.5 V.
+  PB1 2 LED 65% Charge level - >11.7 В.
+  PB2 3 LED 35% Charge level - >11.1 В.
 
-  Фюзы по умолчанию:
-  low_fuses=0x6A
-  high_fuses=0xFF
-  Частота 1,2 MHz
+Fuses to defalt:
+low_fuses=0x6A
+high_fuses=0xFF
+CPU Frequensy 1,2 MHz
