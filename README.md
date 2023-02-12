@@ -16,6 +16,12 @@ PB3 voltmeter, 50 kOhm and 10 kOhm + 1 kOhm variable resistor;
 
 PB4 Relay.
 
+Source code(for Arduino IDE - "ATtiny13BatteryProtect/ATtiny13BatteryProtect.ino") here:
+
+https://github.com/techn0man1ac/ATtiny13BatteryProtect/tree/main/Code
+
+It's project full open source(PCB and code).
+
 # PCB 3D model
 
 PCB Up side:
