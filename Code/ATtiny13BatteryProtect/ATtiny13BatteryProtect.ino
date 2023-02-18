@@ -47,32 +47,32 @@ int main( void )
 
     unsigned int adc = analogReadOversampled();
 
-    if (adc >= 358 && adc <= 512) {
-      PORTB |= (1 << 4); // if voltage >10.5 V <15 V lets go!
-      if (adc >= 445 ) { // >13V  blinking all LEDs
+    if (adc >= 358 && adc <= 512) { // if voltage >10.5 V <15 V lets go!
+      PORTB |= (1 << 4); 
+      if (adc >= 445 ) { // >13V  blinking all LEDs, flashing intensity depends on battery voltage
         delay((((542 - adc) / 4) * 50));
-      } // flashing intensity depends on battery voltage
-      if (adc >= 428 ) {
+      } 
+      if (adc >= 428 ) { // LED 1(Green) - 100% charge level >12.5 V.
         PORTB |= (1 << 0);
-      }  // LED 1(Green) - 100% charge level >12.5 V.
-      if (adc >= 401 ) {
+      }  
+      if (adc >= 401 ) { // LED 2(Yellow) - 65% charge level >11.7 V.
         PORTB |= (1 << 1);
-      }  // LED 2(Yellow) - 65% charge level >11.7 V.
-      if (adc >= 378 ) {
+      } 
+      if (adc >= 378 ) { // LED 3(Red) - 35% charge level >11.1 V.
         PORTB |= (1 << 2);
-      }  // LED 3(Red) - 35% charge level >11.1 V.
-      if (adc <= 377 ) {
-        PORTB |= (1 << 2);  // <11.1 V. blinking red led(charge level < 35%)
-        delay((((adc - 350) / 4) * 50)); // flashing intensity depends on battery voltage
+      } 
+      if (adc <= 377 ) { // <11.1 V. blinking red led(charge level < 35%), flashing intensity depends on battery voltage
+        PORTB |= (1 << 2); 
+        delay((((adc - 350) / 4) * 50));
         PORTB &= ~(1 << 2);
       }
       wdt_reset(); 
       delay(300);  // 300 ms cycle
     }
-    else {
+    else { // If battery voltage >10.5V and <15V - sleep mode
       //PORTB &= ~(1<<4); //
       system_sleep();
-    } // If battery voltage >10.5V and <15V - sleep mode
+    } 
   }
   return 0;
 }
@@ -85,19 +85,19 @@ unsigned int ADC_READ() {
   ADCSRA |= 1 << ADIF;
   byte low  = ADCL;
   byte high = ADCH;
-  ADCSRA &= ~(1 << ADEN);  // отключаем АЦП
+  ADCSRA &= ~(1 << ADEN); // off ADC
   return (high << 8) | low;
 }
 
 unsigned int analogReadOversampled() {
   unsigned long aSum = 0;   // the sum of all analog readings
   for (int i = 0; i < 32; i++)
-    aSum += ADC_READ(); // read and sum 16 ADС probes
-  return aSum >> 5;   // ..
+    aSum += ADC_READ(); // read and sum 32 ADС probes
+  return aSum >> 5;   // analogous to dividing by 32
 }
 void system_sleep() { // Setup sleep mode to 8 seconds
   wdt_reset(); 
-  PORTB = 0x00; // All leds is off and relay off
+  PORTB = 0x00; // All leds and relay off
   ADCSRA &= ~(1 << ADEN);  // cut off ADC
 
   MCUSR &= ~(1 << WDRF);
