@@ -1,80 +1,78 @@
 /*
-  PB3 вольтметр, делитель напряжения, 50 кОм и 10 кОм + 1 кОм подстроечный(по плюсу)
-  PB4 реле
-  PB0 1-й светодиод 100% заряда - 12.5 В.
-  PB1 2-й светодиод 65% заряда - 11.7 В.
-  PB2 3-й светодиод 35% заряда - 11.1 В.
+Simple 12V battery LEAD Acid Battery Protection board based ATtiny13 microcontroller 
+It's project full open source(PCB and code).
+https://github.com/techn0man1ac/ATtiny13BatteryProtect
+By Tech01 labs 2023.
 
-  Фюзы по умолчанию:
-  low_fuses=0x6A
-  high_fuses=0xFF
-  Частота 1,2 MHz
+Fuses to defalt:
+low_fuses=0x6A
+high_fuses=0xFF
+CPU Frequensy 1,2 MHz
+
+PB0 1 LED 100% Charge level - >12.5 V;
+PB1 2 LED 65% Charge level - >11.7 V;
+PB2 3 LED 35% Charge level - >11.1 V;
+PB3 voltmeter, 50 kOhm and 10 kOhm + 1 kOhm variable resistor;
+PB4 Relay.
 */
 
 #include <avr/io.h>
-#include <avr/wdt.h> // здесь организована работа с ватчдогом
-#include <avr/sleep.h> // здесь описаны режимы сна
+#include <avr/wdt.h>
+#include <avr/sleep.h> 
 #include <avr/power.h>
 //#include <avr/delay.h>
 
 int main( void )
 {
-  wdt_reset(); // надо же, сколько над этим бился
-  // просто ватчдог после перезагрузки включен
-  DDRB = 0b10111;  // порти PB0-PB2 и PB4 встановленні на вихід, PB3 на вхід.
-  PORTB |= (1 << 2); // подмигнём, типа спим но питание есть
-
-  /*for(byte led_test = 1; led_test >= 0; led_test--){    // проведемо діагностику
-    PORTB = 1<<led_test;
-    delay(300); //_delay_ms(300);
-    }*/
+  wdt_reset(); // need to correct work for sleep.h library
+  DDRB = 0b10111;  // ports PB0-PB2 and PB4 is outputs, PB3 - input.
+  PORTB |= (1 << 2); // blink after wake up
 
   unsigned int adc_in_main = analogReadOversampled();
-  if (adc_in_main <= 410 || adc_in_main >= 472) { // для обеспечения гистерезиса после отключения
-    // при > 12.0 В или < 13.5 В просыпаемся
+  if (adc_in_main <= 410 || adc_in_main >= 472) { // to provide hysteresis after tripping
+     // when > 12.0 V or < 13.5 V wake up
     system_sleep();
   }
 
-  for (byte led_test = 0; led_test < 2; led_test++) {  // проведемо діагностику
+  for (byte led_test = 0; led_test < 2; led_test++) {  // to do diagnostics
     PORTB = 1 << led_test;
     delay(300);
   }
 
   while (1) {
-    wdt_enable(WDTO_2S); // защита от случайных зависаний
-    // если не сбросить через 2 сек будет ресет
+    wdt_enable(WDTO_2S); // protection, if not reset after 2 seconds will be reset
     PORTB &= ~(1 << 0);
-    PORTB &= ~(1 << 1); // тушым светодиоди 100% 65% 35%
+    PORTB &= ~(1 << 1); // Cut off LEDs 100% 65% 35%
     PORTB &= ~(1 << 2);
 
     unsigned int adc = analogReadOversampled();
 
     if (adc >= 358 && adc <= 512) {
-      PORTB |= (1 << 4); // напряжение > 10.5 В < 15 В поехали!
-      if (adc >= 445 ) { // > 13 В мигаем всема светодиодами
+      PORTB |= (1 << 4); // if voltage >10.5 V <15 V lets go!
+      if (adc >= 445 ) { // >13V  blinking all LEDs
         delay((((542 - adc) / 4) * 50));
-      } // интенсивность мигания зависит от напряжения
+      } // flashing intensity depends on battery voltage
       if (adc >= 428 ) {
         PORTB |= (1 << 0);
-      }  // 1-й светодиод 100% заряда > 12.5 В.
+      }  // LED 1(Green) - 100% charge level >12.5 V.
       if (adc >= 401 ) {
         PORTB |= (1 << 1);
-      }  // 2-й светодиод 65% заряда > 11.7 В.
+      }  // LED 2(Yellow) - 65% charge level >11.7 V.
       if (adc >= 378 ) {
         PORTB |= (1 << 2);
-      }  // 3-й светодиод 35% заряда > 11.1 В.
+      }  // LED 3(Red) - 35% charge level >11.1 V.
       if (adc <= 377 ) {
-        PORTB |= (1 << 2);  // < 11.1 В. мигаем светодиодом 30%
-        delay((((adc - 350) / 4) * 50)); // интенсивность мигания зависит от напряжения
+        PORTB |= (1 << 2);  // <11.1 V. blinking red led(charge level < 35%)
+        delay((((adc - 350) / 4) * 50)); // flashing intensity depends on battery voltage
         PORTB &= ~(1 << 2);
       }
-      wdt_reset(); // сбросим защиту от зависаний
-      delay(300);  // ждём как минимум 0.3 сек
+      wdt_reset(); 
+      delay(300);  // 300 ms cycle
     }
     else {
       //PORTB &= ~(1<<4); //
       system_sleep();
-    } // если условие > 10.5 В < 15 В не выполняется - сон
+    } // If battery voltage >10.5V and <15V - sleep mode
   }
   return 0;
 }
@@ -97,10 +95,10 @@ unsigned int analogReadOversampled() {
     aSum += ADC_READ(); // read and sum 16 ADС probes
   return aSum >> 5;   // ..
 }
-void system_sleep() {
-  wdt_reset(); // сбрасываем ватчдог measure current
-  PORTB = 0x00; // потушым все диоди и откл. реле
-  ADCSRA &= ~(1 << ADEN);  // вимикаємо АЦП
+void system_sleep() { // Setup sleep mode to 8 seconds
+  wdt_reset(); 
+  PORTB = 0x00; // All leds is off and relay off
+  ADCSRA &= ~(1 << ADEN);  // cut off ADC
 
   MCUSR &= ~(1 << WDRF);
   /* Start the WDT Config change sequence. */
@@ -113,10 +111,10 @@ void system_sleep() {
 
   sei(); // Enable global interrupts
 
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // если спать - то на полную
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // full sleep
   while (1) {
-    sleep_enable(); // разрешаем сон
-    sleep_cpu(); // спать!
+    sleep_enable(); 
+    sleep_cpu(); // sleeep!
     sleep_disable();
   }
 }
